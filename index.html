@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<meta name="description" content="Shooting Training — personal range training app">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Shooting Training v1.002</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;background:#f5f5f2}
+*{box-sizing:border-box}body{margin:0}main{max-width:736px;margin:auto;padding:18px}
+button,input,textarea{font:inherit}button{min-height:46px;border-radius:12px;font-weight:650;cursor:pointer}
+.primary{background:#171717;color:white;border:0;padding:0 18px}.secondary{background:white;color:#171717;border:1px solid #deded9;padding:0 16px}.danger{background:white;color:#8b2929;border:1px solid #d4d4d0;padding:0 16px}
+.card{background:white;border:1px solid #deded9;border-radius:16px;padding:16px}.muted{color:#707070}.hidden{display:none}.status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#e9e9e5;font-size:12px;font-weight:700}
+input,textarea{width:100%;border:1px solid #deded9;border-radius:12px;padding:10px 12px;background:white;font-size:16px}
+.metric{border:1px solid #deded9;border-radius:12px;padding:10px;text-align:center;background:white}
+.space>*+*{margin-top:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.flex{display:flex;align-items:center;justify-content:space-between;gap:12px}.tiny{font-size:11px}.small{font-size:14px}
+@media(max-width:380px){main{padding:14px}.grid3{grid-template-columns:1fr 1fr}.grid3 .wide{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<main id="app">
+<section id="home" class="space">
+<div><div class="small muted">FUNDAMENTALS BLOCK</div><h1>Training Progress</h1></div>
+<div id="trainingCards" class="space"></div>
+<div class="card space"><b>Training History</b><div id="history" class="small"></div></div>
+</section>
+
+<section id="brief" class="hidden space">
+<div><div class="small muted">FUNDAMENTALS BLOCK</div><h1 id="briefTitle"></h1></div>
+<div class="card space"><div><b>Goal</b><div id="briefGoal" class="muted"></div></div><div class="grid2 small"><div><span class="muted">Drills</span><div id="briefDrills"><b></b></div></div><div><span class="muted">Rounds</span><div id="briefRounds"><b></b></div></div></div></div>
+<button id="begin" class="primary" style="width:100%">Begin Session</button>
+<button id="briefHome" class="secondary" style="width:100%">Back to Home</button>
+</section>
+
+<section id="session" class="hidden space">
+<div class="flex"><div><div id="sessionTraining" class="small muted"></div><b id="drillCounter"></b></div><div class="card" style="padding:9px 12px;text-align:center"><div class="tiny muted">SESSION</div><b id="sessionTimer">00:00</b></div></div>
+<div class="card space"><div class="tiny muted">PROGRAMMED DRILL</div><h2 id="drillName" style="margin:0"></h2><div class="grid2 small"><div><span class="muted">Distance</span><div id="distance"><b></b></div></div><div><span class="muted">Start position</span><div id="startPosition"><b></b></div></div><div><span class="muted">Series</span><div id="series"><b></b></div></div><div><span class="muted">Fixed shots</span><div id="shots"><b></b></div></div></div><div class="small"><span class="muted">Focus:</span> <span id="focus"></span></div></div>
+<div id="shotTimerCard" class="card hidden"><div class="flex"><div><div class="tiny muted">SHOT TIMER</div><b id="shotTime" style="font-size:24px">Ready</b></div><button id="shotTimer" class="secondary">Start Shot Timer</button></div></div>
+<div class="card"><label><b>Hits</b><input id="hits" type="number" min="0" step="1" inputmode="numeric" placeholder="Enter hits" style="margin-top:7px"></label><label style="display:block;margin-top:14px"><b>Notes <span class="muted" style="font-weight:400">(optional)</span></b><textarea id="notes" rows="3" placeholder="Anything worth remembering..." style="margin-top:7px"></textarea></label></div>
+<button id="saveResult" class="primary" style="width:100%">Save Result</button>
+<div class="grid2"><button id="pause" class="secondary">Pause</button><button id="cancel" class="danger">Cancel Session</button></div>
+</section>
+
+<section id="paused" class="hidden card space" style="text-align:center">
+<div class="tiny muted">SESSION PAUSED</div><h2>Training is paused</h2><p class="small muted">The Session Timer is stopped and the current drill is preserved.</p>
+<button id="resume" class="primary" style="width:100%">Resume Session</button><button id="cancelPaused" class="danger" style="width:100%">Cancel Session</button>
+</section>
+
+<section id="confirm" class="hidden card space">
+<h2>Cancel this Session?</h2><p class="small muted">Current results will be discarded. Nothing will be added to History.</p>
+<div class="grid2"><button id="confirmCancel" class="danger">Cancel Session</button><button id="keepSession" class="secondary">Keep Training</button></div>
+</section>
+
+<section id="summary" class="hidden space">
+<div><div class="tiny muted">SESSION COMPLETE</div><h1 id="summaryTitle"></h1></div>
+<div class="grid3"><div class="metric"><div class="tiny muted">ACCURACY</div><b id="sumAccuracy"></b></div><div class="metric"><div class="tiny muted">HITS</div><b id="sumHits"></b></div><div class="metric wide"><div class="tiny muted">TIME</div><b id="sumTime"></b></div></div>
+<div class="card space"><b>Drill Results</b><div id="summaryDrills" class="small"></div></div>
+<button id="repeat" class="primary" style="width:100%">Repeat Training</button><button id="next" class="secondary" style="width:100%">Next Training</button><button id="summaryHome" class="secondary" style="width:100%">Back to Home</button>
+</section>
+</main>
+
+<script>
+(()=> {
+const trainings=[
+{n:1,name:"Fundamentals",goal:"Consistent fundamentals across 5–20 m.",drills:[
+["Warm-up","5 m","Low Ready","2 × 5",10,"Fundamentals; Timer OFF"],["Precision 5 m","5 m","Low Ready","5 × 5",25,"Grouping consistency"],["Precision 7 m","7 m","Low Ready","5 × 5",25,"Grouping consistency"],["Precision 10 m","10 m","Low Ready","4 × 3",12,"Grouping consistency"],["Precision 15 m","15 m","Low Ready","3 × 3",9,"Grouping consistency"],["Precision 20 m","20 m","Low Ready","3 × 3",9,"Grouping consistency"]]},
+{n:2,name:"Fundamentals + Presentation",goal:"Consistent presentation and minimal sight-picture correction.",drills:[
+["Warm-up","5 m","Low Ready","2 × 5",10,"Presentation + single shot; Timer OFF"],["Precision 5 m","5 m","Low Ready","4 × 5",20,"Consistency"],["Presentation → 1 shot","5 m","Low Ready","6 × 2",12,"Presentation; Timer OFF"],["Presentation → 1 shot","7 m","Low Ready","5 × 2",10,"Presentation; Timer OFF"],["Precision 10 m","10 m","Low Ready","4 × 3",12,"Consistency"],["Precision 15 m","15 m","Low Ready","3 × 3",9,"Consistency"],["Precision 20 m","20 m","Low Ready","3 × 3",9,"Consistency"]]},
+{n:3,name:"Controlled Pairs",goal:"Grip, sight recovery and trigger control without chasing speed.",drills:[
+["Warm-up","5 m","Low Ready","2 × 5",10,"Timer OFF"],["Single shots","5 m","Low Ready","3 × 5",15,"Timer OFF"],["Controlled pair","5 m","Low Ready","6 × 2",12,"Sight recovery"],["Controlled pair","7 m","Low Ready","6 × 2",12,"Sight recovery"],["Controlled pair","10 m","Low Ready","5 × 2",10,"Sight recovery"],["Controlled pair","15 m","Low Ready","4 × 2",8,"Sight recovery"],["Precision","20 m","Low Ready","3 × 3",9,"Accuracy"],["Mixed pairs","5–10 m","Low Ready","7 × 2",14,"Consistency"]]},
+{n:4,name:"Baseline + Shot Timer",goal:"Establish actual first-shot and controlled-pair baseline.",drills:[
+["Warm-up","5 m","Low Ready","2 × 5",10,"Timer OFF"],["Precision check","5 m","Low Ready","3 × 5",15,"Timer OFF"],["First Shot Baseline","5 m","Low Ready","10 × 1",10,"Shot Timer ON; no par time"],["First Shot","7 m","Low Ready","5 × 1",5,"Shot Timer ON; no target time"],["Controlled Pair Baseline","5 m","Low Ready","10 × 2",20,"Shot Timer ON; record time + split"],["Controlled Pair","7 m","Low Ready","5 × 2",10,"Shot Timer ON"],["Controlled Pair","10 m","Low Ready","5 × 2",10,"Shot Timer ON"],["Precision","15 m","Low Ready","3 × 3",9,"Timer OFF"],["Precision","20 m","Low Ready","3 × 3",9,"Timer OFF"]]},
+{n:5,name:"Reload Fundamentals",goal:"Controlled reload practice while following all range rules.",drills:[
+["Warm-up","5 m","Low Ready","2 × 5",10,"Timer OFF"],["Precision","5 m","Low Ready","3 × 5",15,"Accuracy"],["Controlled pairs","5 m","Low Ready","4 × 2",8,"Controlled pace"],["Reload drill","7 m","Low Ready","6 × 4",24,"Timer OFF; range-approved handling"],["Reload + timer","7 m","Low Ready","6 × 4",24,"Shot Timer ON; consistency > speed"],["Reload + precision","10 m","Low Ready","5 × 3",15,"Controlled accuracy"],["Precision","15 m","Low Ready","3 × 3",9,"Accuracy"],["Precision","20 m","Low Ready","3 × 3",9,"Accuracy"]]}
+];
+const views=["home","brief","session","paused","confirm","summary"], $=id=>document.getElementById(id);
+let current=0,drill=0,results=[],history=[],elapsed=0,paused=false,timerId=null,lastTick=0,shotId=null,shotStart=0;
+try{history=JSON.parse(localStorage.getItem("shootingHistory_v1001")||"[]")}catch(e){history=[]}
+const show=v=>views.forEach(x=>$(x).classList.toggle("hidden",x!==v));
+const fmt=s=>{s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const stats=i=>{let h=history.filter(x=>x.training===i+1);return{count:h.length,last:h.length?h[h.length-1].accuracy:null,best:h.length?Math.max(...h.map(x=>x.accuracy)):null}};
+function renderHome(){
+show("home");
+$("trainingCards").innerHTML=trainings.map((t,i)=>{let s=stats(i),ready=s.count>=2&&s.last>=90,status=ready?"Ready to Progress":s.count?"In Progress":"Not Started";
+return `<div class="card space"><div class="flex"><div><div class="tiny muted">Training ${String(t.n).padStart(2,"0")}</div><b style="font-size:18px">${t.name}</b></div><span class="status">${status}</span></div><div class="grid3 small"><div><span class="muted">Sessions</span><div><b>${s.count}</b></div></div><div><span class="muted">Last</span><div><b>${s.last===null?"—":s.last+"%"}</b></div></div><div><span class="muted">Best</span><div><b>${s.best===null?"—":s.best+"%"}</b></div></div></div><button class="primary" style="width:100%" data-open="${i}">Start Training ${String(t.n).padStart(2,"0")}</button></div>`}).join("");
+document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openBrief(Number(b.dataset.open)));
+$("history").innerHTML=history.length?history.slice().reverse().map(x=>`<div style="padding:9px 0;border-bottom:1px solid #eee"><b>Training ${String(x.training).padStart(2,"0")} — ${x.name}</b><br><span class="muted">${x.date} · ${x.hits}/${x.shots} hits · ${x.accuracy}% · ${fmt(x.duration)}</span></div>`).join(""):"<div class='muted' style='margin-top:10px'>No Sessions yet.</div>";
+}
+function openBrief(i){current=i;let t=trainings[i];$("briefTitle").textContent=`Training ${String(t.n).padStart(2,"0")} — ${t.name}`;$("briefGoal").textContent=t.goal;$("briefDrills").innerHTML=`<b>${t.drills.length}</b>`;$("briefRounds").innerHTML=`<b>${t.drills.reduce((a,d)=>a+d[4],0)}</b>`;show("brief")}
+function begin(){drill=0;results=[];elapsed=0;paused=false;lastTick=Date.now();clearInterval(timerId);timerId=setInterval(()=>{if(!paused){elapsed+=(Date.now()-lastTick)/1000;lastTick=Date.now();$("sessionTimer").textContent=fmt(elapsed)}else lastTick=Date.now()},250);renderDrill();show("session")}
+function renderDrill(){let d=trainings[current].drills[drill];$("sessionTraining").textContent=`Training ${String(current+1).padStart(2,"0")} — ${trainings[current].name}`;$("drillCounter").textContent=`Drill ${drill+1} of ${trainings[current].drills.length}`;$("drillName").textContent=d[0];$("distance").textContent=d[1];$("startPosition").textContent=d[2];$("series").textContent=d[3];$("shots").textContent=d[4];$("focus").textContent=d[5];$("hits").value="";$("notes").value="";clearInterval(shotId);$("shotTime").textContent="Ready";$("shotTimer").textContent="Start Shot Timer";$("shotTimerCard").classList.toggle("hidden",!d[5].includes("Shot Timer"))}
+function saveResult(){let d=trainings[current].drills[drill],v=Number($("hits").value);if(!Number.isInteger(v)||v<0||v>d[4]){$("hits").focus();return}results.push({name:d[0],shots:d[4],hits:v,notes:$("notes").value.trim()});if(drill<trainings[current].drills.length-1){drill++;renderDrill()}else complete()}
+function complete(){clearInterval(timerId);clearInterval(shotId);let shots=results.reduce((a,r)=>a+r.shots,0),hits=results.reduce((a,r)=>a+r.hits,0),accuracy=Math.round(hits/shots*100);let rec={training:current+1,name:trainings[current].name,hits,shots,accuracy,duration:Math.floor(elapsed),date:new Date().toLocaleString()};history.push(rec);try{localStorage.setItem("shootingHistory_v1001",JSON.stringify(history))}catch(e){}$("summaryTitle").textContent=`Training ${String(current+1).padStart(2,"0")} — ${trainings[current].name}`;$("sumAccuracy").textContent=accuracy+"%";$("sumHits").textContent=hits+"/"+shots;$("sumTime").textContent=fmt(elapsed);$("summaryDrills").innerHTML=results.map((r,i)=>`<div style="padding:9px 0;border-bottom:1px solid #eee"><b>${i+1}. ${r.name}</b><br><span class="muted">${r.hits}/${r.shots} hits${r.notes?" · "+r.notes:""}</span></div>`).join("");$("next").textContent=current<trainings.length-1?"Next Training":"Back to Training List";show("summary")}
+function pause(){paused=true;clearInterval(shotId);show("paused")}
+function resume(){paused=false;lastTick=Date.now();renderDrillState();show("session")}
+function renderDrillState(){let d=trainings[current].drills[drill];$("sessionTraining").textContent=`Training ${String(current+1).padStart(2,"0")} — ${trainings[current].name}`;$("drillCounter").textContent=`Drill ${drill+1} of ${trainings[current].drills.length}`;$("drillName").textContent=d[0];$("distance").textContent=d[1];$("startPosition").textContent=d[2];$("series").textContent=d[3];$("shots").textContent=d[4];$("focus").textContent=d[5];$("shotTimerCard").classList.toggle("hidden",!d[5].includes("Shot Timer"))}
+function askCancel(){show("confirm")}
+function confirmCancel(){clearInterval(timerId);clearInterval(shotId);results=[];elapsed=0;paused=false;renderHome()}
+$("begin").onclick=begin;$("briefHome").onclick=renderHome;$("saveResult").onclick=saveResult;$("pause").onclick=pause;$("resume").onclick=resume;$("cancel").onclick=askCancel;$("cancelPaused").onclick=askCancel;$("confirmCancel").onclick=confirmCancel;$("keepSession").onclick=()=>{paused=false;lastTick=Date.now();renderDrillState();show("session")};$("repeat").onclick=begin;$("next").onclick=()=>current<trainings.length-1?openBrief(current+1):renderHome();$("summaryHome").onclick=renderHome;
+$("shotTimer").onclick=()=>{if(shotId){clearInterval(shotId);shotId=null;$("shotTimer").textContent="Start Shot Timer";return}shotStart=Date.now();shotId=setInterval(()=>$("shotTime").textContent=((Date.now()-shotStart)/1000).toFixed(2)+" s",20);$("shotTimer").textContent="Stop Shot Timer"};
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+renderHome();
+})();
+</script>
+</body>
+</html>
