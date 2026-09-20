@@ -1,14 +1,15 @@
-Shooting Training v1.002
+Shooting Training v1.003
 
-This is the installable PWA package.
-Files:
+This version fixes the missing PWA manifest/service-worker package and adds iOS-specific web-app metadata.
+
+GitHub Pages files:
 - index.html
+- manifest.json
 - manifest.webmanifest
 - sw.js
 - icon-192.png
 - icon-512.png
 
-Important:
-A PWA needs to be served from HTTPS (or localhost) for service-worker installation.
-For a real phone/desktop installation, upload these files to a web host and open the HTTPS address.
-v1.002 keeps training history in the browser on that device. Cross-device sync is NOT included yet.
+After replacing the files on GitHub Pages, delete the old Shooting Training Home Screen icon/bookmark from iPhone. Then open the GitHub Pages URL in Safari and use Share -> Add to Home Screen. Keep Open as Web App enabled.
+
+The app stores training history locally in the browser via localStorage.
